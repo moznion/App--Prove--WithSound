@@ -7,21 +7,26 @@ use strict;
 use App::Prove;
 use Audio::Play::MPG123;
 
-my $app    = App::Prove->new;
-my $player = Audio::Play::MPG123->new;
+sub playMp3 {
+    my ($mp3_file) = @_;
+
+    my $player = Audio::Play::MPG123->new;
+    $player->load($mp3_file);
+    $player->poll(1) until $player->state == 0;
+}
+
+my $app = App::Prove->new;
 
 $app->process_args(@ARGV);
 
 unless ( $app->run ) {
 
     # Sound when occur some error
-    $player->load('/Users/ta_kawakami/Dropbox/curse.mp3');
-    $player->poll(1) until $player->state == 0;
+    playMp3('/Users/ta_kawakami/Dropbox/curse.mp3');
     exit;
 }
 
 # Sound when success
-$player->load('/Users/ta_kawakami/Dropbox/level_up.mp3');
-$player->poll(1) until $player->state == 0;
+playMp3('/Users/ta_kawakami/Dropbox/level_up.mp3');
 
 __END__
