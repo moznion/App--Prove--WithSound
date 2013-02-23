@@ -10,9 +10,14 @@ use Audio::Play::MPG123;
 sub playMp3 {
     my ($mp3_file) = @_;
 
-    my $player = Audio::Play::MPG123->new;
-    $player->load($mp3_file);
-    $player->poll(1) until $player->state == 0;
+    my $pid = fork;
+    die "fork failed." unless defined $pid;
+
+    if ( $pid == 0 ) {
+        my $player = Audio::Play::MPG123->new;
+        $player->load($mp3_file);
+        $player->poll(1) until $player->state == 0;
+    }
 }
 
 my $app = App::Prove->new;
