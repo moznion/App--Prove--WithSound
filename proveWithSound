@@ -1,0 +1,27 @@
+#!/usr/bin/env perl -w
+
+eval 'exec /usr/bin/env perl -w -S $0 ${1+"$@"}'
+  if 0;    # not running under some shell
+
+use strict;
+use App::Prove;
+use Audio::Play::MPG123;
+
+my $app    = App::Prove->new;
+my $player = Audio::Play::MPG123->new;
+
+$app->process_args(@ARGV);
+
+unless ( $app->run ) {
+
+    # Sound when occur some error
+    $player->load('/Users/ta_kawakami/Dropbox/curse.mp3');
+    $player->poll(1) until $player->state == 0;
+    exit;
+}
+
+# Sound when success
+$player->load('/Users/ta_kawakami/Dropbox/level_up.mp3');
+$player->poll(1) until $player->state == 0;
+
+__END__
