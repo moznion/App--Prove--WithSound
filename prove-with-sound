@@ -6,8 +6,15 @@ eval 'exec /usr/bin/env perl -w -S $0 ${1+"$@"}'
 use strict;
 use App::Prove;
 use Audio::Play::MPG123;
+use Config::Simple;
+use File::Spec::Functions qw/catfile/;
 
-sub playMp3 {
+sub load_config {
+    my $config = Config::Simple->new( catfile( $ENV{HOME}, '.prove_soundrc' ) );
+    return $config->param('SUCCESS'), $config->param('FAILURE');
+}
+
+sub play_mp3 {
     my ($mp3_file) = @_;
 
     my $pid = fork;
@@ -15,23 +22,24 @@ sub playMp3 {
 
     if ( $pid == 0 ) {
         my $player = Audio::Play::MPG123->new;
-        $player->load($mp3_file);
+        $player->load( glob $mp3_file );
         $player->poll(1) until $player->state == 0;
     }
 }
 
-my $app = App::Prove->new;
+my ( $success_sound, $failure_sound ) = load_config;
 
+my $app = App::Prove->new;
 $app->process_args(@ARGV);
 
 unless ( $app->run ) {
 
     # Sound when occur some error
-    playMp3('/Users/ta_kawakami/Dropbox/curse.mp3');
+    play_mp3( glob $failure_sound );
     exit;
 }
 
 # Sound when success
-playMp3('/Users/ta_kawakami/Dropbox/level_up.mp3');
+play_mp3( glob $success_sound );
 
 __END__
